@@ -28,26 +28,29 @@ def get_weather(zipcode):
 
 # 629410947305-3ebltr175e1hh3gcariimffs9s2dl0k2.apps.googleusercontent.com
 
-def get_user_prefs(user_id, team_id):
-  user_and_team_id = user_id + team_id
+def get_user_prefs(user_and_team_id):
   con = sqlite3.connect('db.db')
-  cursor = con.execute("SELECT user_and_team_id, postalcode from userprefs where user_and_team_id = :user_and_team_id", {"user_and_team_id": user_and_team_id})
+  cursor = con.execute("SELECT postalcode from userprefs where user_and_team_id = :user_and_team_id", {"user_and_team_id": user_and_team_id})
   results_list = cursor.fetchall()
-  if len(results_list == 0):
-    cursor = con.execute("INSERT INTO userprefs (user_and_team_id, user_id, team_id) VALUES (:user_and_team_id, :user_id, :team_id)", 
-      {
-        "user_and_team_id": user_and_team_id,
-        "user_id": user_id,
-        "team_id": team_id
-      })
-    return '0'
+  if len(results_list) < 2:
+    return {
+      "postalcode": results_list[0][0]
+    }
   else:
-    if len(results_list[0][1]):
-      return results_list[0][1]
-  return 0
+    raise Exception("Attempted to get user data, expecting zero or one row. " + len(results_list) + " rows were returned.")
 
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
+  logger.info(event)
+
+  user_id = event["user"]
+  team_id = event["view"]["team_id"]
+  user_and_team_id = user_id + "_" + team_id
+  try:
+    user_prefs = get_user_prefs(user_and_team_id)
+  except Exception as e:
+    logger.error(e)
+
   try:
     # views.publish is the method that your app uses to push a view to the Home tab
     client.views_publish(
@@ -81,7 +84,8 @@ def update_home_tab(client, event, logger):
             "type": "input",
             "element": {
               "type": "plain_text_input",
-              "action_id": "zip_code_submit"
+              "action_id": "zip_code_submit",
+              "initial_value": user_prefs["postalcode"]
             },
             "label": {
               "type": "plain_text",
@@ -121,7 +125,6 @@ def update_user_info(user_and_team_id, user_id, team_id, postalcode):
 @app.action("zip_code_submit")
 def handle_actions(ack, body, logger):
     ack()
-    
     user_and_team_id = body["user"]["id"] + "_" + body["user"]["team_id"]
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
