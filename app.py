@@ -24,7 +24,7 @@ def get_weather(zipcode):
   if response:
     print(response.json())
 
-get_weather('60657')
+# get_weather('60657')
 
 # 629410947305-3ebltr175e1hh3gcariimffs9s2dl0k2.apps.googleusercontent.com
 
@@ -104,7 +104,7 @@ def get_desired_action(actions, action_id):
       return action
 
 def update_user_info(user_and_team_id, user_id, team_id, postalcode):
-  conn = sqlite3.nnect('db.db')
+  conn = sqlite3.connect('db.db')
   conn.execute("""INSERT INTO userprefs (user_and_team_id, user_id, team_id, postalcode)
                           VALUES (:user_and_team_id, :user_id, :team_id, :postalcode)
                           ON CONFLICT(user_and_team_id) DO UPDATE SET postalcode=:postalcode
@@ -116,32 +116,23 @@ def update_user_info(user_and_team_id, user_id, team_id, postalcode):
                 "postalcode": postalcode
               })
   conn.commit()
-  # logger.info("Total number of rows updated: " + conn.total_changes)
   
 
 @app.action("zip_code_submit")
 def handle_actions(ack, body, logger):
     ack()
-    # logger.info(body.keys())
-    logger.info(body["user"])
-    logger.info(body["actions"])
-    # logger.info(body)
-
+    
     user_and_team_id = body["user"]["id"] + "_" + body["user"]["team_id"]
     user_id = body["user"]["id"]
-    postalcode = get_desired_action("zip_code_submit")["value"]
+    team_id = body["user"]["team_id"]
+    postalcode = get_desired_action(action_id="zip_code_submit", actions=body["actions"])["value"]
 
     update_user_info(
       user_and_team_id = user_and_team_id,
       user_id = user_id,
+      team_id = team_id,
       postalcode = postalcode
     )
-
-# @app.action("button_click")
-# def action_button_click(body, ack, say)
-#   # Acknowledge
-#   ack()
-#   say(f"<@{body['user']['id']}> clicked the button")
 
 if __name__ == "__main__":
   app.start(port=int(os.environ.get("PORT", 3000)))
