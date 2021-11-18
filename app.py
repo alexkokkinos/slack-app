@@ -3,30 +3,14 @@ from slack_bolt import App
 import requests
 # import weather
 import sqlite3
+import logging
 
 app = App(
   token=os.environ.get("SLACK_BOT_TOKEN"),
   signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-import logging
-
 logging.basicConfig(level=logging.DEBUG)
-
-weather = os.environ.get("WEATHERAPI_KEY")
-weatherurl = "https://api.weatherapi.com/v1/forecast.json"
-
-def get_weather(zipcode):
-  response = requests.get(
-    url=weatherurl,
-    params={'q': zipcode}
-  )
-  if response:
-    print(response.json())
-
-# get_weather('60657')
-
-# 629410947305-3ebltr175e1hh3gcariimffs9s2dl0k2.apps.googleusercontent.com
 
 def get_user_prefs(user_and_team_id):
   con = sqlite3.connect('db.db')
@@ -121,7 +105,6 @@ def update_user_info(user_and_team_id, user_id, team_id, postalcode):
                 "postalcode": postalcode
               })
   conn.commit()
-  
 
 @app.action("zip_code_submit")
 def handle_actions(ack, body, logger):
