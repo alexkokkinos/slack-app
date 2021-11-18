@@ -33,5 +33,4 @@ def get_hourly_conditions(location):
   logging.info(f"Remaining hours: %i", (len(remaining_hours)))
   return remaining_hours
 
-
 get_hourly_conditions("60657")
