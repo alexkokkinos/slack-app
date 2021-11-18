@@ -1,17 +1,37 @@
 import requests
 import os
+import logging
+import time
 
-weather = os.environ.get("WEATHERAPI_KEY")
+logging.basicConfig(level=logging.DEBUG)
+
+weather_api_key = os.environ.get("WEATHERAPI_KEY")
 weatherurl = "https://api.weatherapi.com/v1/forecast.json"
 
-def get_weather(zipcode):
+def get_weather(location):
   response = requests.get(
     url=weatherurl,
-    params={'q': zipcode}
+    params={
+      'key': weather_api_key,
+      'q': location,
+      'alerts': "no"
+    }
   )
-  if response:
-    print(response.json())
+  if response.status_code == 200:
+    return response.json()
+  else:
+    raise Exception("Undesired response code: %i \n %s" % (response.status_code, response.text))
 
-get_weather('60657')
+def get_hourly_conditions(location):
+  weather_info = get_weather(location)
+  hours = weather_info["forecast"]["forecastday"][0]["hour"]
+  remaining_hours = []
+  for hour in hours:
+    if hour["time_epoch"] <= time.time():
+      remaining_hours.append(hour)
+  logging.info(f"Total forecast hours: %i", (len(hours)))
+  logging.info(f"Remaining hours: %i", (len(remaining_hours)))
+  return remaining_hours
 
-# 629410947305-3ebltr175e1hh3gcariimffs9s2dl0k2.apps.googleusercontent.com
+
+get_hourly_conditions("60657")
