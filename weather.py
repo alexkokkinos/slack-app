@@ -27,7 +27,7 @@ def get_hourly_conditions(location):
   hours = weather_info["forecast"]["forecastday"][0]["hour"]
   remaining_hours = []
   for hour in hours:
-    if hour["time_epoch"] <= time.time():
+    if hour["time_epoch"] >= time.time():
       remaining_hours.append(hour)
   logging.info(f"Total forecast hours: %i", (len(hours)))
   logging.info(f"Remaining hours: %i", (len(remaining_hours)))
