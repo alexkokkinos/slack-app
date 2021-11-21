@@ -27,7 +27,7 @@ def get_hourly_conditions(location):
   hours = weather_info["forecast"]["forecastday"][0]["hour"]
   remaining_hours = []
   for hour in hours:
-    if hour["time_epoch"] >= time.time():
+    if hour["time_epoch"] >= weather_info["location"]["localtime_epoch"]:
       remaining_hours.append(hour)
   logging.info(f"Total forecast hours: %i", (len(hours)))
   logging.info(f"Remaining hours: %i", (len(remaining_hours)))
@@ -39,50 +39,66 @@ def get_weather_score(hour):
     "ideal_temp": 72,
     "units": "f"
   }
+  userprefs = {
+    "ideal_temp": 22.22,
+    "units": "c"
+  }
   score = 0
-  if hour["will_it_rain"] or hour["will_it_snow"] == 1:
-    score-=100
+
+  ## Rain Adjustments
+  score -= hour["chance_of_rain"]
+  score -= hour["chance_of_snow"]
   
   ### Temperature Adjustments
   temp_adjustment = userprefs["ideal_temp"] - hour["feelslike_" + userprefs["units"]]
   
+  ## I use multipliers for more extreme temperatures.
+  ## I will guess that, for most people, warmer temperature extremes are less bearable than colder ones
+  ## because cold is more easily rectified by adding clothing
   # Fahrenheit
   if userprefs["units"] == "f":
     multiplier = 1
-    # Temperature is under 50 degrees
-    if hour["feelslike_f"] < 50:
+    # Temperature is colder than ideal - 20 degrees
+    if hour["feelslike_f"] < userprefs["ideal_temp"] - 20:
       multiplier = 2
-    # Temperature is over 80 degrees
-    if hour["feelslike_f"] > 80:
+    # Temperature is warmer than ideal + 10 degrees
+    if hour["feelslike_f"] > userprefs["ideal_temp"] + 10:
       multiplier = 2
     score -= abs(multiplier * (userprefs["ideal_temp"] - hour["feelslike_f"]))
   # Celsius
   else:
-    multiplier = 1
-    # Temperature is under 10 degrees
-    if hour["feelslike_c"] < 10:
-      multiplier = 2
+    multiplier = 1.8 # Adjust multiplier for Celsius to keep it consistent with Fahrenheit results
+    # Temperature is colder than ideal - 7 degrees
+    if hour["feelslike_c"] < userprefs["ideal_temp"] - 11.11:
+      multiplier = 3.6
     # Temperature is over 27 degrees
-    if hour["feelslike_c"] > 27:
-      multiplier = 2
-    score -= abs(multiplier(userprefs["ideal_temp"] - hour["feelslike_c"]))
+    if hour["feelslike_c"] > userprefs["ideal_temp"] + 5.55:
+      multiplier = 3.6
+    score -= abs(multiplier * (userprefs["ideal_temp"] - hour["feelslike_c"]))
 
   ### End Temperature Adjustments
 
+  ### Wind Speed Adjustments
   # This wind speed scale is crudely based on the Beaufort wind force scale
-  # It seems to be, essentially, logarithmic – 30MPH is more than twice as "bad" as 15MPH
+  # 30MPH is more than twice as "bad" as 15MPH, so we have scaling multipliers
   # https://mountain-hiking.com/hike-safe-wind/
+  multiplier=0.25
+  if hour["wind_mph"] > 10:
+    multiplier=0.5
   if hour["wind_mph"] > 20:
-    score-=10
+    multiplier=1
   if hour["wind_mph"] > 25:
-    score-=50
+    multiplier=2
   if hour["wind_mph"] > 30:
-    score-=50
+    multiplier=5
   if hour["wind_mph"] > 33:
-    score-=100
+    multiplier=10
+  score -= multiplier * hour["wind_mph"]
+
+  ### End Wind Speed Adjustments
 
   return score
 
-hours = get_hourly_conditions("Barcelona, Aruba")
+hours = get_hourly_conditions("Wadsworth, Ohio")
 for hour in hours:
-  print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Score: " + str(get_weather_score(hour)))
+  print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Chance of Rain: " + str(hour["chance_of_rain"]) + " - Score: " + str(get_weather_score(hour)))
