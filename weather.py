@@ -1,7 +1,7 @@
 import requests
 import os
 import logging
-import time
+# import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -99,6 +99,12 @@ def get_weather_score(hour):
 
   return score
 
-hours = get_hourly_conditions("Wadsworth, Ohio")
-for hour in hours:
-  print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Chance of Rain: " + str(hour["chance_of_rain"]) + " - Score: " + str(get_weather_score(hour)))
+def get_best_walk(location):
+  hours = get_hourly_conditions(location)
+  for hour in hours:
+    hour["weather_score"] = get_weather_score(hour)
+  best_walk = max(hours, key=lambda x:x["weather_score"])
+  return best_walk
+
+get_best_walk("wadsworth, oh")
+# print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Chance of Rain: " + str(hour["chance_of_rain"]) + " - Score: " + str(get_weather_score(hour)))

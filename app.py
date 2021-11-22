@@ -1,7 +1,7 @@
 import os
-from slack_bolt import App
+from slack_bolt import App, Respond
 import requests
-# import weather
+import weather
 import sqlite3
 import logging
 
@@ -120,6 +120,32 @@ def handle_actions(ack, body, logger):
       team_id = team_id,
       postalcode = postalcode
     )
+
+@app.command("/walktime")
+def handle_walktime(ack, body, logger, respond: Respond):
+  ack()
+  logger.info(body)
+  best_walk = weather.get_best_walk()
+  respond(blocks=[
+    {
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ""
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Click Me",
+					"emoji": true
+				},
+				"value": "click_me_123",
+				"url": "https://google.com",
+				"action_id": "button-action"
+			}
+		}
+  ])
 
 if __name__ == "__main__":
   app.start(port=int(os.environ.get("PORT", 3000)))
