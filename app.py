@@ -110,8 +110,9 @@ def update_user_info(user_and_team_id, user_id, team_id, location):
 
 @app.action("location_submit")
 def handle_actions(ack, body, logger):
+    logger.debug(body)
     ack()
-    user_and_team_id = f"{body['user_id']}_{body['team_id']}"
+    user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
     location = get_desired_action(action_id="location_submit", actions=body["actions"])["value"]
@@ -139,9 +140,9 @@ def handle_walktime(ack, body, logger, respond: Respond):
   except ValueError as e:
     respond(
       """
-      We were unable to find the best walk for today. 
-      This problem might occur if there are no more hours left in the day for the location specified.
-      Support for walking information beyond today's date may be added in the future!
+We were unable to find the best walk for today. 
+This problem might occur if there are no more hours left in the day for the location specified.
+Support for walking information beyond today's date may be added in the future!
       """)
     logger.error(e)
 
