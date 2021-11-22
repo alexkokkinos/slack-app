@@ -99,7 +99,20 @@ def get_weather_score(hour, userprefs=default_userprefs):
 
   return score
 
-def get_best_walk(user_prefs=default_userprefs):
+def check_key_value(dict, key):
+  if key in dict.keys():
+    return bool(dict[key])
+  return False
+
+def safe_user_prefs_defaults(user_prefs):
+  return {
+    "location": '90210' if not check_key_value(user_prefs, 'location') else user_prefs['location'],
+    "units": 'f' if not check_key_value(user_prefs, 'units') else user_prefs['units'],
+    "ideal_temp": 72 if not check_key_value(user_prefs, 'ideal_temp') else user_prefs['ideal_temp']
+  }
+
+def get_best_walk(prefs):
+  user_prefs = safe_user_prefs_defaults(prefs)
   conditions = get_hourly_conditions(user_prefs["location"])
   for hour in conditions["hour"]:
     hour["weather_score"] = get_weather_score(hour, user_prefs)

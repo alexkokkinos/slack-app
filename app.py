@@ -67,7 +67,7 @@ def update_home_tab(client, event, logger):
             "type": "input",
             "element": {
               "type": "plain_text_input",
-              "action_id": "zip_code_submit",
+              "action_id": "location_submit",
               "initial_value": user_prefs["location"],
               "placeholder": {
                 "type": "plain_text",
@@ -76,11 +76,11 @@ def update_home_tab(client, event, logger):
             },
             "label": {
               "type": "plain_text",
-              "text": "Zip Code",
+              "text": "Location",
               "emoji": False
             },
             "dispatch_action": True,
-            "block_id": "zip_code_block"
+            "block_id": "location_block"
           }
         ]
       }
@@ -108,13 +108,13 @@ def update_user_info(user_and_team_id, user_id, team_id, location):
               })
   conn.commit()
 
-@app.action("zip_code_submit")
+@app.action("location_submit")
 def handle_actions(ack, body, logger):
     ack()
     user_and_team_id = f"{body['user_id']}_{body['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
-    location = get_desired_action(action_id="zip_code_submit", actions=body["actions"])["value"]
+    location = get_desired_action(action_id="location_submit", actions=body["actions"])["value"]
 
     update_user_info(
       user_and_team_id = user_and_team_id,
@@ -149,21 +149,21 @@ def handle_walktime(ack, body, logger, respond: Respond):
   c = user_prefs['units'] == "c" 
 
   response_intro_markdown = f"""
-  The best time to walk is: *<!date^{best_walk['best_walk_hour']['time_epoch']}^{{time}}|>*:
+  The best time to walk in *{best_walk['location']['name']}* is *<!date^{best_walk['best_walk_hour']['time_epoch']}^{{time}}|{best_walk['best_walk_hour']['time']} (local time)>*:
   \n\n
   """
 
   response_weather_markdown = f"""
-  *{best_walk['best_walk_hour']['condition']['text']}*, 
-  *{best_walk['best_walk_hour']['temp_c'] if c else best_walk['best_walk_hour']['temp_f']}{'°C' if c else '°F'}*, 
-  Feels like {best_walk['best_walk_hour']['feelslike_c'] if c else best_walk['best_walk_hour']['feelslike_f']}{'°C' if c else '°F'}, 
-  Chance of Rain: {best_walk['best_walk_hour']['chance_of_rain']}%
+*{best_walk['best_walk_hour']['condition']['text']}*
+*{best_walk['best_walk_hour']['temp_c'] if c else best_walk['best_walk_hour']['temp_f']}{'°C' if c else '°F'}*
+Feels like {best_walk['best_walk_hour']['feelslike_c'] if c else best_walk['best_walk_hour']['feelslike_f']}{'°C' if c else '°F'}, 
+Chance of Rain: {best_walk['best_walk_hour']['chance_of_rain']}%
   """
 
-  response_footnotes = """
-  Note: Walking time is shown in your current Slack timezone. This time will be offset by a time zone difference if your configured location is in a different time zone.
-  \n\n
-  Set your location and other preferences in the <slack://app?team={{WORKSPACE_ID}}&id={{APP_ID}}&tab=home|Home tab of this App>.
+  response_footnotes = f"""
+Note: Walking time is shown in your current Slack timezone. This time will be offset by a time zone difference if your configured location is in a different time zone.
+\n\n
+Set your location and other preferences in the <slack://app?team={body['team_id']}&id={body['api_app_id']}&tab=home|Home tab of this App>.
   """
 
   try:
