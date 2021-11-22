@@ -7,6 +7,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 weather_api_key = os.environ.get("WEATHERAPI_KEY")
 weatherurl = "https://api.weatherapi.com/v1/forecast.json"
+default_userprefs = {
+    "ideal_temp": 72,
+    "units": "f",
+    "location": "90210"
+  }
 
 def get_weather(location):
   response = requests.get(
@@ -31,18 +36,14 @@ def get_hourly_conditions(location):
       remaining_hours.append(hour)
   logging.info(f"Total forecast hours: %i", (len(hours)))
   logging.info(f"Remaining hours: %i", (len(remaining_hours)))
-  return remaining_hours
+  return {
+    "hour": remaining_hours,
+    "location": weather_info["location"],
+    "current": weather_info["current"]
+  }
 
-def get_weather_score(hour):
-  # placeholder, move to parameters
-  userprefs = {
-    "ideal_temp": 72,
-    "units": "f"
-  }
-  userprefs = {
-    "ideal_temp": 22.22,
-    "units": "c"
-  }
+
+def get_weather_score(hour, userprefs=default_userprefs):
   score = 0
 
   ## Rain Adjustments
@@ -99,12 +100,16 @@ def get_weather_score(hour):
 
   return score
 
-def get_best_walk(location):
-  hours = get_hourly_conditions(location)
-  for hour in hours:
-    hour["weather_score"] = get_weather_score(hour)
-  best_walk = max(hours, key=lambda x:x["weather_score"])
-  return best_walk
+def get_best_walk(user_prefs=default_userprefs):
+  conditions = get_hourly_conditions(user_prefs["location"])
+  for hour in conditions["hour"]:
+    hour["weather_score"] = get_weather_score(hour, user_prefs)
+  best_walk = max(conditions["hour"], key=lambda x:x["weather_score"])
+  return {
+    "best_walk_hour": best_walk,
+    "location": conditions["location"],
+    "current": conditions["current"]
+  }
 
-get_best_walk("wadsworth, oh")
+get_best_walk()
 # print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Chance of Rain: " + str(hour["chance_of_rain"]) + " - Score: " + str(get_weather_score(hour)))
