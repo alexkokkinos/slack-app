@@ -104,12 +104,14 @@ def get_best_walk(user_prefs=default_userprefs):
   conditions = get_hourly_conditions(user_prefs["location"])
   for hour in conditions["hour"]:
     hour["weather_score"] = get_weather_score(hour, user_prefs)
+    logging.debug(f"{hour['time']} – {hour['feelslike_f']}°F – Wind: {hour['wind_mph']} MPH – Rain: {hour['will_it_rain']} - Chance of Rain: {hour['chance_of_rain']} - Score: {hour['weather_score']}")
   best_walk = max(conditions["hour"], key=lambda x:x["weather_score"])
-  return {
+  best_walk_info = {
     "best_walk_hour": best_walk,
     "location": conditions["location"],
     "current": conditions["current"]
   }
+  return best_walk_info
 
-get_best_walk()
-# print(hour["time"] + " – " + str(hour["feelslike_f"]) + "°F – Wind: " + str(hour["wind_mph"]) + "MPH – " + "Rain: " + str(hour["will_it_rain"]) + " - Chance of Rain: " + str(hour["chance_of_rain"]) + " - Score: " + str(get_weather_score(hour)))
+# results = get_best_walk()
+# logging.debug(results)
