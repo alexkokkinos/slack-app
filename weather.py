@@ -51,8 +51,7 @@ def get_weather_score(hour, userprefs=default_userprefs):
   score -= hour["chance_of_snow"]
   
   ### Temperature Adjustments
-  temp_adjustment = userprefs["ideal_temp"] - hour["feelslike_" + userprefs["units"]]
-  
+
   ## I use multipliers for more extreme temperatures.
   ## I will guess that, for most people, warmer temperature extremes are less bearable than colder ones
   ## because cold is more easily rectified by adding clothing
