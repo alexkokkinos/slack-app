@@ -2,3 +2,4 @@ slack_bolt
 requests
 psycopg2-binary
 flask
+gunicorn
