@@ -11,15 +11,19 @@ class PGDatabase():
     user=os.environ.get("DBUSER"),
     host=os.environ.get("DBHOST"),
     port=os.environ.get("PORT"),
-    password=os.environ.get("DBPASSWORD")
+    password=os.environ.get("DBPASSWORD"),
+    uri=os.environ.get("DATABASE_URL")
   ):
-    self.conn = psycopg2.connect(
-      database=database,
-      user=user,
-      host=host,
-      port=port,
-      password=password
-    )
+    if uri is not None:
+      self.conn = psycopg2.connect(uri)
+    else:
+      self.conn = psycopg2.connect(
+        database=database,
+        user=user,
+        host=host,
+        port=port,
+        password=password
+      )
     self.cursor = self.conn.cursor()
 
   def query(self, query, data=None):
