@@ -1,9 +1,9 @@
 import os
+from posix import environ
 from slack_bolt import App, Respond
-import requests
 import weather
-import sqlite3
 import logging
+from pgdatabase import PGDatabase
 
 app = App(
   token=os.environ.get("SLACK_BOT_TOKEN"),
@@ -13,14 +13,15 @@ app = App(
 logging.basicConfig(level=logging.DEBUG)
 
 def get_user_prefs(user_and_team_id):
-  con = sqlite3.connect('db.db')
-  cursor = con.execute("SELECT location, ideal_temp, units from userprefs where user_and_team_id = :user_and_team_id", {"user_and_team_id": user_and_team_id})
-  results_list = cursor.fetchall()
-  if len(results_list) == 1:
+  db = PGDatabase()
+  db.query("SELECT location, ideal_temp, units from userprefs.userprefs where user_and_team_id = %s;", (user_and_team_id,))
+  result = db.cursor.fetchone()
+  db.close()
+  if result is not None:
     return {
-      "location": results_list[0][0],
-      "ideal_temp": results_list[0][1],
-      "units": results_list[0][2]
+      "location": result[0],
+      "ideal_temp": result[1],
+      "units": result[2]
     }
   else:
     return {
@@ -95,18 +96,19 @@ def get_desired_action(actions, action_id):
       return action
 
 def update_user_info(user_and_team_id, user_id, team_id, location):
-  conn = sqlite3.connect('db.db')
-  conn.execute("""INSERT INTO userprefs (user_and_team_id, user_id, team_id, location)
-                          VALUES (:user_and_team_id, :user_id, :team_id, :location)
-                          ON CONFLICT(user_and_team_id) DO UPDATE SET location=:location
+  db = PGDatabase()
+  db.query("""INSERT INTO userprefs.userprefs (user_and_team_id, user_id, team_id, location)
+                          VALUES (%s, %s, %s, %s)
+                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s
                """,
-              {
-                "user_and_team_id": user_and_team_id,
-                "user_id": user_id,
-                "team_id": team_id,
-                "location": location
-              })
-  conn.commit()
+              (
+                user_and_team_id,
+                user_id,
+                team_id,
+                location,
+                location
+              ),)
+  db.close()
 
 @app.action("location_submit")
 def handle_actions(ack, body, logger):
