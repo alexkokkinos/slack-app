@@ -164,6 +164,14 @@ def home_tab_content(user_prefs, update_status):
 				"text": ":exclamation: Error updating preferences! Reload the Home tab and try again.",
 				"emoji": True
 		}
+  if update_status == "error_update_ideal_temp":
+    view["blocks"].append({
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": ":exclamation: Error updating preferences! Ideal Temperature must be an integer (e.g., 72, NOT 72.5 or 72F)",
+				"emoji": True
+		}
 	})
 
   return view
