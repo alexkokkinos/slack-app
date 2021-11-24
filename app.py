@@ -19,6 +19,7 @@ def get_user_prefs(user_and_team_id):
   result = db.cursor.fetchone()
   db.close()
   if result is not None:
+    logging.debug(result)
     return {
       "location": result[0],
       "ideal_temp": result[1],
@@ -27,8 +28,8 @@ def get_user_prefs(user_and_team_id):
   else:
     return {
       "location": '',
-      "ideal_temp": '',
-      "units": 'f'
+      "ideal_temp": int(),
+      "units": ''
     }
 
 
@@ -79,7 +80,7 @@ def home_tab_content(user_prefs, update_status):
             "element": {
               "type": "plain_text_input",
               "action_id": "ideal_temperature_submit",
-              "initial_value": str(user_prefs["ideal_temp"] if user_prefs["ideal_temp"] is not None else ''),
+              "initial_value": str(user_prefs["ideal_temp"] if user_prefs["ideal_temp"] else ''),
               "placeholder": {
                 "type": "plain_text",
                 "text": "00"
