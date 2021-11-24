@@ -245,10 +245,8 @@ def handle_actions(ack, body, client, logger):
     ideal_temp = body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]
     update_status = "successful_update"
 
-    try:
-      int_ideal_temp = int(ideal_temp)
-    except TypeError:
-      int_ideal_temp = None
+    if not ideal_temp.isdigit():
+      ideal_temp = None
       update_status = "error_update_ideal_temp"
 
     try:
@@ -257,7 +255,7 @@ def handle_actions(ack, body, client, logger):
         user_id = user_id,
         team_id = team_id,
         location = location,
-        ideal_temp = int_ideal_temp,
+        ideal_temp = ideal_temp,
         units = units
       )
     
@@ -265,7 +263,7 @@ def handle_actions(ack, body, client, logger):
         user_id=user_id,
         view=home_tab_content(
           user_prefs={
-            "ideal_temp": int_ideal_temp,
+            "ideal_temp": ideal_temp,
             "units": units,
             "location": location
           }, 
