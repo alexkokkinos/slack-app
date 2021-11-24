@@ -97,3 +97,5 @@ The following app settings in api.slack.com need have endpoints pointed to the t
 * Event Subscriptions
 
 e.g. `https://<temporary-ngrok-address>.ngrok.io/slack/events`
+
+You can set these using the api.slack.com UI, or modify and [programmatically](https://api.slack.com/reference/manifests#manifest_apis) the included [manifest.yml](manifest.yml) or via the web UI.
