@@ -139,7 +139,8 @@ def home_tab_content(user_prefs, update_status):
                   "emoji": True
               },
               "value": "save_preferences",
-              "action_id": "save_preferences"
+              "action_id": "save_preferences",
+              "style": "primary"
             }
           ]
         }
@@ -193,7 +194,7 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
   db = PGDatabase()
   db.query("""INSERT INTO userprefs.userprefs (user_and_team_id, user_id, team_id, location, ideal_temp, units)
                           VALUES (%s, %s, %s, %s, %s, %s)
-                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_temp = %s, units = %s
+                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_temps = %s, units = %s
                """,
               (
                 # VALUES
