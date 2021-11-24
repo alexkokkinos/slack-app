@@ -243,18 +243,26 @@ def handle_actions(ack, body, client, logger):
       update_status = "successful_update"
     except ValueError as e:
       update_status = "error_update_ideal_temp"
+      client.views_publish(
+      user_id=user_id,
+      view=home_tab_content(
+        user_prefs={
+          "ideal_temp": None,
+          "units": units,
+          "location": location
+        }, 
+        update_status=update_status))
+      return
     except Exception as e:
       update_status = "error_update"
     
     client.views_publish(
-      # the user that opened your app's app home
       user_id=user_id,
-      # the view object that appears in the app home
       view=home_tab_content(
         user_prefs={
-          "ideal_temp": ideal_temp or None,
-          "units": units or None,
-          "location": location or None
+          "ideal_temp": ideal_temp,
+          "units": units,
+          "location": location
         }, 
         update_status=update_status)
     )
