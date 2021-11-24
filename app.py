@@ -28,7 +28,7 @@ def get_user_prefs(user_and_team_id):
     return {
       "location": '',
       "ideal_temp": '',
-      "units": 'F'
+      "units": 'f'
     }
 
 
@@ -79,7 +79,7 @@ def home_tab_content(user_prefs, update_status):
             "element": {
               "type": "plain_text_input",
               "action_id": "ideal_temperature_submit",
-              "initial_value": user_prefs["ideal_temp"],
+              "initial_value": str(user_prefs["ideal_temp"]),
               "placeholder": {
                 "type": "plain_text",
                 "text": "00"
@@ -137,13 +137,13 @@ def home_tab_content(user_prefs, update_status):
                   "text": "Save Preferences",
                   "emoji": True
               },
-            "value": "save_preferences",
-            "action_id": "save_preferences"
-          }
-			]
-		}
-    ]
-  }
+              "value": "save_preferences",
+              "action_id": "save_preferences"
+            }
+          ]
+        }
+      ]
+    }
 
   if update_status == "successful_update":
     view["blocks"].append({
