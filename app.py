@@ -120,14 +120,14 @@ def home_tab_content(user_prefs, update_status):
                 }
               ],
               "action_id": "units_submit",
-              "initial_options": [{
+              "initial_option": {
                 "value": user_prefs["units"] if user_prefs["units"] else "f",
                 "text": {
                   "type": "plain_text",
                   "text": "Celsius (°C)" if user_prefs["units"] == "c" else "Fahrenheit (°F)",
                   "emoji": True
                 }
-              }]
+              }
             },
             "label": {
               "type": "plain_text",
