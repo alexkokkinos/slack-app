@@ -125,7 +125,8 @@ def home_tab_content(user_prefs, update_status):
               "type": "plain_text",
               "text": "Temperature Units",
               "emoji": True
-            }
+            },
+            "block_id": "units_block"
           },
           {
             "type": "actions",
@@ -192,7 +193,7 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
   db = PGDatabase()
   db.query("""INSERT INTO userprefs.userprefs (user_and_team_id, user_id, team_id, location, ideal_temp, units)
                           VALUES (%s, %s, %s, %s, %s, %s)
-                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_tempe = %s, units = %s
+                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_temp = %s, units = %s
                """,
               (
                 # VALUES
@@ -216,9 +217,9 @@ def handle_actions(ack, body, client, logger):
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
-    location = get_desired_action(action_id="location_submit", actions=body["actions"])["value"]
-    ideal_temp = get_desired_action(action_id="ideal_temperature_submit", actions=body["actions"])["value"]
-    units = get_desired_action(action_id="units_submit", actions=body["actions"])["value"]
+    location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
+    ideal_temp = int(body["view"]["state"]["values"]["location_block"]["ideal_temp_block"]["ideal_temperature_submit"]["value"])
+    units = body["view"]["state"]["values"]["location_block"]["units_block"]["units_submit"]["selected_option"]["text"]["value"]
 
     try:
       update_user_info(
