@@ -212,14 +212,14 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
 
 @app.action("save_preferences")
 def handle_actions(ack, body, client, logger):
-    logger.debug(body)
     ack()
+    logger.debug(body)
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
-    ideal_temp = int(body["view"]["state"]["values"]["location_block"]["ideal_temp_block"]["ideal_temperature_submit"]["value"])
-    units = body["view"]["state"]["values"]["location_block"]["units_block"]["units_submit"]["selected_option"]["text"]["value"]
+    ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"])
+    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["text"]["value"]
 
     try:
       update_user_info(
