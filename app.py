@@ -194,7 +194,7 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
   db = PGDatabase()
   db.query("""INSERT INTO userprefs.userprefs (user_and_team_id, user_id, team_id, location, ideal_temp, units)
                           VALUES (%s, %s, %s, %s, %s, %s)
-                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_temps = %s, units = %s
+                          ON CONFLICT (user_and_team_id) DO UPDATE SET location = %s, ideal_temp = %s, units = %s
                """,
               (
                 # VALUES
@@ -218,11 +218,11 @@ def handle_actions(ack, body, client, logger):
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
-    location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
-    ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"])
-    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
 
     try:
+      location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
+      ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]),
+      units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
       update_user_info(
         user_and_team_id = user_and_team_id,
         user_id = user_id,
@@ -232,6 +232,8 @@ def handle_actions(ack, body, client, logger):
         units = units
       )
       update_status = "successful_update"
+    except ValueError as e:
+      update_status = "error_update_ideal_temp"
     except Exception as e:
       update_status = "error_update"
     
@@ -241,7 +243,7 @@ def handle_actions(ack, body, client, logger):
       # the view object that appears in the app home
       view=home_tab_content(
         user_prefs={
-          "ideal_temp": ideal_temp,
+          "ideal_temp": ideal_temp if ideal_temp is int else None,
           "units": units,
           "location": location
         }, 
