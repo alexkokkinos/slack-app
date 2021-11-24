@@ -142,7 +142,8 @@ def home_tab_content(user_prefs, update_status):
               "action_id": "save_preferences",
               "style": "primary"
             }
-          ]
+          ],
+            "block_id": "save_preferences"
         }
       ]
     }
@@ -228,7 +229,10 @@ def handle_actions(ack, body, client, logger):
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
-    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
+    if "value" in body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]:
+      units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
+    else:
+      units = None
     ideal_temp = body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]
     update_status = "successful_update"
 
@@ -236,6 +240,7 @@ def handle_actions(ack, body, client, logger):
       int_ideal_temp = int(ideal_temp)
     except TypeError:
       int_ideal_temp = None
+      update_status = "error_update_ideal_temp"
 
     try:
       update_user_info(
