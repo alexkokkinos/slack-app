@@ -230,8 +230,8 @@ def handle_actions(ack, body, client, logger):
 
     try:
       location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
-      ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]),
       units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
+      ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]),
       update_user_info(
         user_and_team_id = user_and_team_id,
         user_id = user_id,
