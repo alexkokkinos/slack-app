@@ -229,6 +229,7 @@ def handle_actions(ack, body, client, logger):
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
+    logging.debug(body["view"]["state"]["values"])
     if "value" in body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"].keys():
       units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
     else:
