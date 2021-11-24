@@ -79,7 +79,7 @@ def home_tab_content(user_prefs, update_status):
             "element": {
               "type": "plain_text_input",
               "action_id": "ideal_temperature_submit",
-              "initial_value": str(user_prefs["ideal_temp"]),
+              "initial_value": str(user_prefs["ideal_temp"] if user_prefs["ideal_temp"] is not None else ''),
               "placeholder": {
                 "type": "plain_text",
                 "text": "00"
