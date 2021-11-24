@@ -164,6 +164,7 @@ def home_tab_content(user_prefs, update_status):
 				"text": ":exclamation: Error updating preferences! Reload the Home tab and try again.",
 				"emoji": True
 		}
+  })
   if update_status == "error_update_ideal_temp":
     view["blocks"].append({
 			"type": "section",
