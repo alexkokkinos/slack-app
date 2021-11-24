@@ -90,7 +90,7 @@ def home_tab_content(user_prefs, update_status):
               "text": "Your ideal walking temperature",
               "emoji": False
             },
-            "block_id": "location_block"
+            "block_id": "ideal_temp_block"
           },
           {
             "type": "input",
