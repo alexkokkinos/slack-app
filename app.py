@@ -289,6 +289,7 @@ def handle_walktime(ack, body, logger, respond: Respond):
 
   try:
     user_prefs = get_user_prefs(user_and_team_id)
+    logger.debug(user_prefs)
   except Exception as e:
     logger.error(f"Error retrieving user preferences: {e}")
   
