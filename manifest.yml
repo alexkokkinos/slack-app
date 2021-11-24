@@ -1,0 +1,39 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: Walk Time
+  description: Tells you the ideal hour to take a walk based on weather conditions.
+  background_color: "#c55100"
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: false
+    messages_tab_read_only_enabled: true
+  bot_user:
+    display_name: Alex's App
+    always_online: false
+  slash_commands:
+    - command: /walktime
+      url: https://walktime.herokuapp.com/slack/events
+      description: The best time to take a walk
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - channels:read
+      - chat:write.public
+      - chat:write
+      - commands
+settings:
+  event_subscriptions:
+    request_url: https://walktime.herokuapp.com/slack/events
+    bot_events:
+      - app_home_opened
+  interactivity:
+    is_enabled: true
+    request_url: https://walktime.herokuapp.com/slack/events
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
+
