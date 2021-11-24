@@ -228,7 +228,7 @@ def handle_actions(ack, body, client, logger):
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
-    location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
+    location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
     if "value" in body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]:
       units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
     else:
