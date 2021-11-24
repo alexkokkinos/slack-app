@@ -234,6 +234,7 @@ def handle_actions(ack, body, client, logger):
       update_status = "successful_update"
     except ValueError as e:
       update_status = "error_update_ideal_temp"
+      ideal_temp = None
     except Exception as e:
       update_status = "error_update"
     
@@ -243,7 +244,7 @@ def handle_actions(ack, body, client, logger):
       # the view object that appears in the app home
       view=home_tab_content(
         user_prefs={
-          "ideal_temp": ideal_temp if ideal_temp is int else None,
+          "ideal_temp": ideal_temp,
           "units": units,
           "location": location
         }, 
