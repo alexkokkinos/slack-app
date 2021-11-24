@@ -219,7 +219,7 @@ def handle_actions(ack, body, client, logger):
     team_id = body["user"]["team_id"]
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
     ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"])
-    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["text"]["value"]
+    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
 
     try:
       update_user_info(
