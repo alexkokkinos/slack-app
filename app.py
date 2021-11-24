@@ -274,7 +274,7 @@ def handle_actions(ack, body, client, logger):
       user_id=user_id,
       view=home_tab_content(
         user_prefs={
-          "ideal_temp": int_ideal_temp,
+          "ideal_temp": ideal_temp,
           "units": units,
           "location": location
         }, 
