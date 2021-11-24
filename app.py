@@ -224,12 +224,12 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
 @app.action("save_preferences")
 def handle_actions(ack, body, client, logger):
     ack()
-    logger.debug(body)
+    # logger.debug(body)
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
-    logging.debug(body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"])
+    logging.debug(body["view"]["state"]["values"]["units_block"]["units_submit"])
     if "value" in body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"].keys():
       units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
     else:
