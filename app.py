@@ -255,8 +255,7 @@ def handle_actions(ack, body, client, logger):
       return
     except Exception as e:
       update_status = "error_update"
-    
-    client.views_publish(
+      client.views_publish(
       user_id=user_id,
       view=home_tab_content(
         user_prefs={
@@ -264,8 +263,18 @@ def handle_actions(ack, body, client, logger):
           "units": units,
           "location": location
         }, 
-        update_status=update_status)
-    )
+        update_status=update_status))
+    else:
+      client.views_publish(
+        user_id=user_id,
+        view=home_tab_content(
+          user_prefs={
+            "ideal_temp": ideal_temp,
+            "units": units,
+            "location": location
+          }, 
+          update_status=update_status)
+      )
 
 @app.command("/walktime")
 def handle_walktime(ack, body, logger, respond: Respond):
