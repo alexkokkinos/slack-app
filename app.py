@@ -62,7 +62,7 @@ def home_tab_content(user_prefs, update_status):
             "element": {
               "type": "plain_text_input",
               "action_id": "location_submit",
-              "initial_value": user_prefs["location"],
+              "initial_value": user_prefs["location"] or '',
               "placeholder": {
                 "type": "plain_text",
                 "text": "examples: 90210 | Beverly Hills, CA | 34.0736,118.4004"
