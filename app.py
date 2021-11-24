@@ -227,54 +227,46 @@ def handle_actions(ack, body, client, logger):
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
+    location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
+    units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
+    ideal_temp = body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]
+    update_status = "successful_update"
 
     try:
-      location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"],
-      units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
-      ideal_temp = int(body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]),
+      int_ideal_temp = int(ideal_temp)
+    except TypeError:
+      int_ideal_temp = None
+
+    try:
       update_user_info(
         user_and_team_id = user_and_team_id,
         user_id = user_id,
         team_id = team_id,
         location = location,
-        ideal_temp = ideal_temp,
+        ideal_temp = int_ideal_temp,
         units = units
       )
-      update_status = "successful_update"
-    except ValueError as e:
-      update_status = "error_update_ideal_temp"
+    
       client.views_publish(
-      user_id=user_id,
-      view=home_tab_content(
-        user_prefs={
-          "ideal_temp": None,
-          "units": units,
-          "location": location
-        }, 
+        user_id=user_id,
+        view=home_tab_content(
+          user_prefs={
+            "ideal_temp": int_ideal_temp,
+            "units": units,
+            "location": location
+          }, 
         update_status=update_status))
-      return
     except Exception as e:
       update_status = "error_update"
       client.views_publish(
       user_id=user_id,
       view=home_tab_content(
         user_prefs={
-          "ideal_temp": ideal_temp,
+          "ideal_temp": int_ideal_temp,
           "units": units,
           "location": location
         }, 
         update_status=update_status))
-    else:
-      client.views_publish(
-        user_id=user_id,
-        view=home_tab_content(
-          user_prefs={
-            "ideal_temp": ideal_temp,
-            "units": units,
-            "location": location
-          }, 
-          update_status=update_status)
-      )
 
 @app.command("/walktime")
 def handle_walktime(ack, body, logger, respond: Respond):
