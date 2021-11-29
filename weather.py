@@ -2,7 +2,7 @@ import requests
 import os
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 weather_api_key = os.environ.get("WEATHERAPI_KEY")
 weatherurl = "https://api.weatherapi.com/v1/forecast.json"
