@@ -2,7 +2,7 @@ import os
 import psycopg2
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 
 class PGDatabase():
