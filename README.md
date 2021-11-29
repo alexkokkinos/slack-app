@@ -12,7 +12,7 @@ The walkability score is based on the "feels-like" temperature, wind, and rain c
 Only the remainder of the current day's hourly forecast is considered in generating this walk time suggestion.
 
 In the next development phase, this application will interface with a calendar API such as Google Calendar to fit your walk in to your schedule.
-It would automatically notify you of your day's walking time(s).
+It would automatically notify you of your day's walking time(s) and block off time on your calendar.
 
 # Local Development
 

@@ -10,10 +10,17 @@ app = App(
   signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-logging.basicConfig(level=logging.DEBUG)
-
+# Log level should not be hardcoded
+logging.basicConfig(level=logging.ERROR)
 
 def get_user_prefs(user_and_team_id):
+  """
+  Retrieves the user preferences from the database, formatted as a dictionary
+
+  Arguments:
+    user_and_team_id -- The Slack user ID and team ID separated by an underscore
+  """
+
   db = PGDatabase()
   db.query("SELECT location, ideal_temp, units from userprefs.userprefs where user_and_team_id = %s;", (user_and_team_id,))
   result = db.cursor.fetchone()
@@ -32,8 +39,15 @@ def get_user_prefs(user_and_team_id):
       "units": ''
     }
 
-
 def home_tab_content(user_prefs, update_status):
+  """
+  Returns the home tab view content based on user preferences and whether the last action was successful
+
+  Arguments:
+    user_prefs -- user preferences (dictionary)
+    update_status -- update status used to relay success/failure
+  """
+
   view = {
         "type": "home",
         "callback_id": "home_view",
@@ -189,6 +203,15 @@ def home_tab_content(user_prefs, update_status):
 
 @app.event("app_home_opened")
 def render_home_tab(client, event, logger):
+  """
+  Event handling for when the user opens the home tab. This function retrieves user preferences and attempts to publish the home tab
+
+  Arguments:
+    client -- Slack Bolt client
+    event -- Slack Bolt event
+    logger -- Slack Bolt logger
+  """
+
   user_and_team_id = f"{event['user']}_{event['view']['team_id']}"
   user_prefs = get_user_prefs(user_and_team_id)
   logger.debug(user_prefs)
@@ -232,12 +255,24 @@ def update_user_info(user_and_team_id, user_id, team_id, location, units, ideal_
 
 @app.action("save_preferences")
 def handle_actions(ack, body, client, logger):
+    """
+    Handles the updates that need to occur when the user presses "Save Preferences" in the Home tab
+
+    Arguments:
+      ack -- Slack Bolt acknowledgement function
+      body -- Slack Bolt body
+      client -- Slack Bolt client
+      logger -- Slack Bolt logger
+    """
     ack()
     logger.debug(body)
     user_and_team_id = f"{body['user']['id']}_{body['user']['team_id']}"
     user_id = body["user"]["id"]
     team_id = body["user"]["team_id"]
+
+    # Information that the user put into the Home tab. We read the view state.
     location = body["view"]["state"]["values"]["location_block"]["location_submit"]["value"]
+    # Check if the user selected anything
     if body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]:
       units = body["view"]["state"]["values"]["units_block"]["units_submit"]["selected_option"]["value"]
     else:
@@ -245,10 +280,13 @@ def handle_actions(ack, body, client, logger):
     ideal_temp = body["view"]["state"]["values"]["ideal_temp_block"]["ideal_temperature_submit"]["value"]
     update_status = "successful_update"
 
+    # If the ideal temperature isn't an integer, we throw it out and let the user know
+    # TODO: Accept floating point numbers 
     if not ideal_temp.isdigit():
       ideal_temp = None
       update_status = "error_update_ideal_temp"
 
+    # Try to update the user preferences in the database
     try:
       update_user_info(
         user_and_team_id = user_and_team_id,
@@ -259,6 +297,7 @@ def handle_actions(ack, body, client, logger):
         units = units
       )
     
+      # The no-error view
       client.views_publish(
         user_id=user_id,
         view=home_tab_content(
@@ -269,6 +308,7 @@ def handle_actions(ack, body, client, logger):
           }, 
         update_status=update_status))
     except Exception as e:
+      # We would publish this alternative view with an error message if there's some kind of error.
       update_status = "error_update"
       client.views_publish(
       user_id=user_id,
@@ -282,16 +322,27 @@ def handle_actions(ack, body, client, logger):
 
 @app.command("/walktime")
 def handle_walktime(ack, body, logger, respond: Respond):
+  """
+  Handles the /walktime slash command
+
+  Arguments:
+    ack: Slack Bolt acknowledge function
+    body: Slack Bolt body
+    logger: Slack Bolt logger
+    respond: Slack Bolt response
+  """
   ack()
-  logger.info(body)
+  logger.debug(body)
   user_and_team_id = f"{body['user_id']}_{body['team_id']}"
 
+  # Try to retrieve the user preferences from the database
   try:
     user_prefs = get_user_prefs(user_and_team_id)
     logger.debug(user_prefs)
   except Exception as e:
     logger.error(f"Error retrieving user preferences: {e}")
   
+  # Try to retrieve the best walk base on user preferences
   try:
     best_walk = weather.get_best_walk(user_prefs)
   except ValueError as e:
@@ -303,7 +354,7 @@ Support for walking information beyond today's date may be added in the future!
       """)
     logger.error(e)
 
-  # Shorthand for later disgusting ternary operator usage
+  # Shorthand for disgusting ternary operator usage that we'll use later
   c = user_prefs['units'] == "c" 
 
   response_intro_markdown = f"""
@@ -311,6 +362,7 @@ Support for walking information beyond today's date may be added in the future!
   \n\n
   """
 
+  # The output below changes based on whether the user's units are set to C or F. /walktime arbitrarily defaults to Fahrenheit
   response_weather_markdown = f"""
 *{best_walk['best_walk_hour']['condition']['text']}*
 *{best_walk['best_walk_hour']['temp_c'] if c else best_walk['best_walk_hour']['temp_f']}{'°C' if c else '°F'}*
@@ -356,10 +408,11 @@ Set your location and other preferences in the <slack://app?team={body['team_id'
   except Exception as e:
     logger.error(f"Error responding to slash command: {e}")
 
+# Development server
 if __name__ == "__main__":
   app.start(port=int(os.environ.get("PORT", 3000)))
 
-# Production
+# Production Heroku Deployment
 from flask import Flask, request
 from slack_bolt.adapter.flask import SlackRequestHandler
 

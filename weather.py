@@ -13,6 +13,12 @@ default_userprefs = {
   }
 
 def get_weather(location):
+  """
+  Retrieves hourly weather conditions from WeatherAPI.com
+
+  Arguments:
+    location -- A string representing your location. Weather API can handle a lot of things like city name, postal code, or coordinates
+  """
   response = requests.get(
     url=weatherurl,
     params={
@@ -27,14 +33,20 @@ def get_weather(location):
     raise Exception("Undesired response code: %i \n %s" % (response.status_code, response.text))
 
 def get_hourly_conditions(location):
+  """
+  Uses the get_weather function to retrieve the weather conditions but parse out the hourly forecast and only return the relevant data for the rest of the day
+
+  Arguments:
+    location -- A string representing your location. Weather API can handle a lot of things like city name, postal code, or coordinates
+  """
   weather_info = get_weather(location)
   hours = weather_info["forecast"]["forecastday"][0]["hour"]
   remaining_hours = []
   for hour in hours:
     if hour["time_epoch"] >= weather_info["location"]["localtime_epoch"]:
       remaining_hours.append(hour)
-  logging.info(f"Total forecast hours: %i", (len(hours)))
-  logging.info(f"Remaining hours: %i", (len(remaining_hours)))
+  logging.debug(f"Total forecast hours: %i", (len(hours)))
+  logging.debug(f"Remaining hours: %i", (len(remaining_hours)))
   return {
     "hour": remaining_hours,
     "location": weather_info["location"],
@@ -43,6 +55,11 @@ def get_hourly_conditions(location):
 
 
 def get_weather_score(hour, userprefs=default_userprefs):
+  """
+  Inspects an hour's data and returns a score based on its weather conditions.
+  The score starts from a baseline of 0 and decreases from there (yes, all scores are negative)
+  Points are deducted for wind, rain, and temperature difference from the ideal
+  """
   score = 0
 
   ## Rain Adjustments
@@ -99,11 +116,24 @@ def get_weather_score(hour, userprefs=default_userprefs):
   return score
 
 def check_key_value(dict, key):
+  """
+  Utility function that ensures that the desired key is present
+
+  Arguments:
+    dict -- input dictionary
+    key -- desired key
+  """
   if key in dict.keys():
     return bool(dict[key])
   return False
 
 def safe_user_prefs_defaults(user_prefs):
+  """
+  Utility function that ensures that the provided user preferences are safe, falls back to sensible defaults
+
+  Arguments:
+    user_prefs -- User preferences as a dictionary
+  """
   return {
     "location": '90210' if not check_key_value(user_prefs, 'location') else user_prefs['location'],
     "units": 'f' if not check_key_value(user_prefs, 'units') else user_prefs['units'],
@@ -111,6 +141,12 @@ def safe_user_prefs_defaults(user_prefs):
   }
 
 def get_best_walk(prefs):
+  """
+  Wrapper function that retrieves the best walk based on user preferences
+
+  Arguments:
+    prefs -- User preferences as a dictionary
+  """
   user_prefs = safe_user_prefs_defaults(prefs)
   conditions = get_hourly_conditions(user_prefs["location"])
   for hour in conditions["hour"]:
@@ -123,6 +159,3 @@ def get_best_walk(prefs):
     "current": conditions["current"]
   }
   return best_walk_info
-
-# results = get_best_walk()
-# logging.debug(results)
