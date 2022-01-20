@@ -2,7 +2,11 @@ import requests
 import os
 import logging
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.ERROR,
+                    filename='/var/log/walktime.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S')
 
 weather_api_key = os.environ.get("WEATHERAPI_KEY")
 weatherurl = "https://api.weatherapi.com/v1/forecast.json"

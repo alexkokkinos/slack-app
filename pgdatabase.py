@@ -2,9 +2,11 @@ import os
 import psycopg2
 import logging
 
-logging.basicConfig(level=logging.ERROR)
-
-
+logging.basicConfig(level=logging.ERROR,
+                    filename='/var/log/walktime.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S')
 class PGDatabase():
     def __init__(
         self,

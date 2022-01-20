@@ -12,8 +12,11 @@ app = App(
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-# Log level should not be hardcoded
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.ERROR,
+                    filename='/var/log/walktime.log',
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S')
 
 
 def get_user_prefs(user_and_team_id):
