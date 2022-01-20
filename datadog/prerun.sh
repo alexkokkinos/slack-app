@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PROVES_PRERUN_RAN="TESTING"
+
 # Update the Postgres configuration from above using the Heroku application environment variable
 if [ -n "$DATABASE_URL" ]; then
   POSTGREGEX='^postgres://([^:]+):([^@]+)@([^:]+):([^/]+)/(.*)$'
