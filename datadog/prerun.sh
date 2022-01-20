@@ -5,10 +5,10 @@ cat << EOF > "$DD_CONF_DIR/conf.d/postgres.d/conf.yaml"
 init_config:
 
 instances:
-  - host: $DATABASE_HOST
+  - host: "$DATABASE_HOST"
     port: $DATABASE_PORT
-    username: $DATABASE_USER
-    password: $DATABASE_PASSWORD
-    dbname: $DATABASE_DBNAME
+    username: "$DATABASE_USER"
+    password: "$DATABASE_PASSWORD"
+    dbname: "$DATABASE_DBNAME"
     ssl: True
 EOF
