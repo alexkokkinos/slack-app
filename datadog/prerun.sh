@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Update the Postgres configuration from above using the Heroku application environment variable
+export $EXPOSEMYCREDS=$DATABASE_URL
 if [ -n "$DATABASE_URL" ]; then
   export WEGOTTHISFAR="Heroku"
   POSTGREGEX='^postgres://([^:]+):([^@]+)@([^:]+):([^/]+)/(.*)$'
