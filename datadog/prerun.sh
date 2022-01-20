@@ -6,8 +6,8 @@ init_config:
 
 instances:
   - host: $DATABASE_HOST
-    port: $DATABASE_USER
-    username: $DATABASE_PASSWORD
+    port: $DATABASE_PORT
+    username: $DATABASE_USER
     password: $DATABASE_PASSWORD
     dbname: $DATABASE_DBNAME
     ssl: True
