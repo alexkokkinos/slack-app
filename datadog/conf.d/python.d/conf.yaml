@@ -9,7 +9,7 @@ logs:
     #   tags: (optional) add tags to each log collected
 
   - type: file
-    path: /path/to/your/python/log.log
+    path: /var/log/walktime.log
     service: walktime
     source: python
     sourcecategory: sourcecode
